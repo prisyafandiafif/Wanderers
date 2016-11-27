@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour 
 {
-	public GameObject normalFullScreenTransitionGameObject;
+	public List<GameObject> fullScreenTransitionGameObjects;
 
 	public GameObject enemyOpeningPageGameObject;
 
@@ -59,19 +59,19 @@ public class GameManager : MonoBehaviour
 
 	public IEnumerator PlayNormalFullScreenTransitionAnimation (Action functionToCall)
 	{
-		normalFullScreenTransitionGameObject.SetActive(true);
+		fullScreenTransitionGameObjects[0].SetActive(true);
 
-		normalFullScreenTransitionGameObject.transform.FindChild("Animation").gameObject.GetComponent<Animator>().Play("start");
+		fullScreenTransitionGameObjects[0].transform.FindChild("Animation").gameObject.GetComponent<Animator>().Play("start");
 
 		yield return new WaitForSeconds(0.4f);
 
 		functionToCall();
 
-		normalFullScreenTransitionGameObject.transform.FindChild("Animation").gameObject.GetComponent<Animator>().Play("end");
+		fullScreenTransitionGameObjects[0].transform.FindChild("Animation").gameObject.GetComponent<Animator>().Play("end");
 
 		yield return new WaitForSeconds(0.4f);
 
-		normalFullScreenTransitionGameObject.SetActive(false);
+		fullScreenTransitionGameObjects[0].SetActive(false);
 	}
 
 	public void OnAbilityButtonClicked (GameObject button)
@@ -159,6 +159,9 @@ public class GameManager : MonoBehaviour
 	{
 		playerPageGameObject.SetActive(true);
 
+		//reset player page
+		ResetPlayerPageElements();
+
 		//always show defend button in the beginning
 		playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
 
@@ -169,10 +172,13 @@ public class GameManager : MonoBehaviour
 		//check if player has status effect or not, and change status effect image and counter text
 		if (playerStatusEffect == -1)
 		{
-			
+			playerPageGameObject.transform.FindChild("CharacterIcons").gameObject.transform.FindChild("CharacterIconnormal").gameObject.SetActive(true);
 		}
 		else
 		{
+			//show character icons based on the status effect
+			playerPageGameObject.transform.FindChild("CharacterIcons").gameObject.transform.FindChild("CharacterIcon" + abilities[playerStatusEffect].resourceType).gameObject.SetActive(true);
+
 			//show status effect
 			playerPageGameObject.transform.FindChild("StatusEffect").gameObject.SetActive(true);
 
@@ -181,6 +187,31 @@ public class GameManager : MonoBehaviour
 
 			//put valid counter text for status effect
 			playerPageGameObject.transform.FindChild("StatusEffect").gameObject.transform.FindChild("ValidCounterText").gameObject.GetComponent<Text>().text = "" + playerStatusValidCounter;
+		}
+	}
+
+	public void ResetPlayerPageElements ()
+	{
+		playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(false);
+		playerPageGameObject.transform.FindChild("ConfirmResetButtons").gameObject.SetActive(false);
+
+		playerPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + 0;
+		playerPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + 0;
+
+		for (int i = 0; i < playerPageGameObject.transform.FindChild("CharacterIcons").gameObject.transform.childCount; i++)
+		{
+			playerPageGameObject.transform.FindChild("CharacterIcons").gameObject.transform.GetChild(i).gameObject.SetActive(false);
+		}
+
+		playerPageGameObject.transform.FindChild("StatusEffect").gameObject.SetActive(false);
+
+		//reset all selected abilities
+		for (int i = 0; i < playerPageGameObject.transform.FindChild("Abilities").gameObject.transform.childCount; i++)
+		{
+			for (int j = 0; j < playerPageGameObject.transform.FindChild("Abilities").gameObject.transform.GetChild(i).gameObject.transform.FindChild("Counters").gameObject.transform.childCount; j++)
+			{
+				playerPageGameObject.transform.FindChild("Abilities").gameObject.transform.GetChild(i).gameObject.transform.FindChild("Counters").gameObject.transform.GetChild(j).gameObject.SetActive(false);
+			}
 		}
 	}
 }
