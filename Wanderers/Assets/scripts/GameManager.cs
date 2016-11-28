@@ -122,10 +122,10 @@ public class GameManager : MonoBehaviour
 					if (isCurrentTurnPlayer)
 					{
 						//increase player status valid counter by 1
-						if (playerStatusValidCounter > 0)
+						/*if (playerStatusValidCounter > 0)
 						{
 							playerStatusValidCounter += 1;
-						}
+						}*/
 
 						//play fullscreen animation
 						StartCoroutine(PlayEyeFullScreenTransitionAnimation(ShowPlayerPage, false));
@@ -143,10 +143,10 @@ public class GameManager : MonoBehaviour
 					if (!isCurrentTurnPlayer)
 					{
 						//increase enemy status valid counter by 1
-						if (enemyStatusValidCounter > 0)
+						/*if (enemyStatusValidCounter > 0)
 						{
 							enemyStatusValidCounter += 1;
-						}
+						}*/
 
 						//play fullscreen animation
 						StartCoroutine(PlayEyeFullScreenTransitionAnimation(ShowEnemyPage, false));
@@ -170,10 +170,10 @@ public class GameManager : MonoBehaviour
 					if (isCurrentTurnPlayer)
 					{
 						//increase player status valid counter by 1
-						if (playerStatusValidCounter > 0)
+						/*if (playerStatusValidCounter > 0)
 						{
 							playerStatusValidCounter += 1;
-						}
+						}*/
 
 						//play fullscreen animation
 						StartCoroutine(PlayEyeFullScreenTransitionAnimation(ShowPlayerPage, false));
@@ -191,10 +191,10 @@ public class GameManager : MonoBehaviour
 					if (!isCurrentTurnPlayer)
 					{
 						//increase enemy status valid counter by 1
-						if (enemyStatusValidCounter > 0)
+						/*if (enemyStatusValidCounter > 0)
 						{
 							enemyStatusValidCounter += 1;
-						}
+						}*/
 
 						//play fullscreen animation
 						StartCoroutine(PlayEyeFullScreenTransitionAnimation(ShowEnemyPage, false));
@@ -525,7 +525,13 @@ public class GameManager : MonoBehaviour
 	{
 		//if enemy's turn
 		if (page == enemyPageGameObject)
-		{
+		{	
+			//if status effect valid counter has not reached zero
+			if (enemyStatusValidCounter > 0)
+			{
+				enemyStatusValidCounter -= 1;
+			}
+
 			List<Abilities> stackOfChosenAbilities = new List<Abilities>();
 
 			for (int i = 0; i < page.transform.FindChild("Abilities").gameObject.transform.childCount; i++)
@@ -559,6 +565,12 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
+			//if status effect valid counter has not reached zero
+			if (playerStatusValidCounter > 0)
+			{
+				playerStatusValidCounter -= 1;
+			}
+
 			List<Abilities> stackOfChosenAbilities = new List<Abilities>();
 
 			for (int i = 0; i < page.transform.FindChild("Abilities").gameObject.transform.childCount; i++)
@@ -601,6 +613,12 @@ public class GameManager : MonoBehaviour
 		//if enemy's turn
 		if (page == enemyPageGameObject)
 		{
+			//if status effect valid counter has not reached zero
+			if (enemyStatusValidCounter > 0)
+			{
+				enemyStatusValidCounter -= 1;
+			}
+
 			//change to defend
 			isEnemyDefend = true;
 			
@@ -612,6 +630,12 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
+			//if status effect valid counter has not reached zero
+			if (playerStatusValidCounter > 0)
+			{
+				playerStatusValidCounter -= 1;
+			}
+
 			//change to defend
 			isPlayerDefend = true;
 
@@ -642,14 +666,14 @@ public class GameManager : MonoBehaviour
 
 			playerTurnCount += 1;
 
-			if (playerTurnCount == 1)
+			/*if (playerTurnCount == 1)
 			{
 				//increase player status valid counter by 1
 				if (playerStatusValidCounter > 0)
 				{
 					playerStatusValidCounter += 1;
 				}
-			}
+			}*/
 		}
 
 		enemyOpeningPageGameObject.SetActive(false);
@@ -677,17 +701,19 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			//reduce valid time by 1
+			/*if (playerStatusValidCounter > 0)
+			{
+				
+			}*/
+
+			//if status effect valid counter has not reached zero
 			if (playerStatusValidCounter > 0)
 			{
-				if (!isPeeking)
+				/*if (!isPeeking)
 				{	
 					playerStatusValidCounter -= 1;
-				}
-			}
+				}*/
 
-			//if status effect valid counter has reached zero
-			if (playerStatusValidCounter > 0)
-			{
 				//show character icons based on the status effect
 				playerPageGameObject.transform.FindChild("CharacterIcons").gameObject.transform.FindChild("CharacterIcon" + abilities[playerStatusEffect].resourceType).gameObject.SetActive(true);
 	
@@ -756,14 +782,14 @@ public class GameManager : MonoBehaviour
 
 			enemyTurnCount += 1;
 
-			if (enemyTurnCount == 1)
+			/*if (enemyTurnCount == 1)
 			{
 				//increase enemy status valid counter by 1
 				if (enemyStatusValidCounter > 0)
 				{
 					enemyStatusValidCounter += 1;
 				}
-			}
+			}*/
 		}
 
 		enemyOpeningPageGameObject.SetActive(false);
@@ -794,13 +820,13 @@ public class GameManager : MonoBehaviour
 		else
 		{
 			//reduce valid time by 1
-			if (enemyStatusValidCounter > 0)
+			/*if (enemyStatusValidCounter > 0)
 			{
 				if (!isPeeking)
 				{
 					enemyStatusValidCounter -= 1;
 				}
-			}
+			}*/
 
 			//if status effect valid counter has reached zero
 			if (enemyStatusValidCounter > 0)
