@@ -777,6 +777,28 @@ public class GameManager : MonoBehaviour
 
 	public void ShowPlayerPage (bool isPeeking)
 	{
+		if (!isCurrentTurnPlayer)
+		{
+			//reset player page
+			ResetPlayerPageElements();
+		}
+
+		if (!isPeeking)
+		{
+			if (playerCurrentHP == 0)
+			{
+
+			}
+			else
+			{
+				if (!isCurrentTurnPlayer)
+				{
+					//always show defend button in the beginning
+					playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
+				}
+			}
+		}
+
 		if (!isPeeking)
 		{
 			isCurrentTurnPlayer = true;
@@ -797,9 +819,6 @@ public class GameManager : MonoBehaviour
 		playerPageGameObject.SetActive(true);
 		enemyPageGameObject.SetActive(false);
 
-		//reset player page
-		ResetPlayerPageElements();
-
 		if (playerCurrentHP > 0)
 		{
 			//put current HP and total HP
@@ -815,19 +834,6 @@ public class GameManager : MonoBehaviour
 			playerPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + playerTotalHP;
 
 			StartCoroutine(PlayerLoseEvent());
-		}
-
-		if (!isPeeking)
-		{
-			if (playerCurrentHP == 0)
-			{
-
-			}
-			else
-			{
-				//always show defend button in the beginning
-				playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
-			}
 		}
 
 		//check if player has status effect or not, and change status effect image and counter text
@@ -929,6 +935,33 @@ public class GameManager : MonoBehaviour
 
 	public void ShowEnemyPage (bool isPeeking)
 	{
+		if (isCurrentTurnPlayer)
+		{
+			//reset enemy page
+			ResetEnemyPageElements();
+		}
+
+		if (!isPeeking)
+		{
+			if (enemyCurrentHP == 0)
+			{
+				//show okay button
+				enemyPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(true);
+
+				//show defeated text
+				enemyPageGameObject.transform.FindChild("Dialogue").gameObject.SetActive(true);
+				enemyPageGameObject.transform.FindChild("Dialogue").gameObject.transform.FindChild("Text").gameObject.GetComponent<Text>().text = enemies[selectedEnemyID].defeatedText;
+			}
+			else
+			{
+				if (isCurrentTurnPlayer)
+				{
+					//always show defend button in the beginning
+					enemyPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
+				}
+			}
+		}
+
 		if (!isPeeking)
 		{
 			isCurrentTurnPlayer = false;
@@ -949,12 +982,6 @@ public class GameManager : MonoBehaviour
 		playerPageGameObject.SetActive(false);
 		enemyPageGameObject.SetActive(true);
 
-		//make is defend false
-		isEnemyDefend = false;
-
-		//reset enemy page
-		ResetEnemyPageElements();
-
 		if (enemyCurrentHP > 0)
 		{
 			//put current HP and total HP
@@ -968,24 +995,6 @@ public class GameManager : MonoBehaviour
 			//put current HP and total HP
 			enemyPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + enemyCurrentHP;
 			enemyPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + enemyTotalHP;
-		}
-
-		if (!isPeeking)
-		{
-			if (enemyCurrentHP == 0)
-			{
-				//show okay button
-				enemyPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(true);
-
-				//show defeated text
-				enemyPageGameObject.transform.FindChild("Dialogue").gameObject.SetActive(true);
-				enemyPageGameObject.transform.FindChild("Dialogue").gameObject.transform.FindChild("Text").gameObject.GetComponent<Text>().text = enemies[selectedEnemyID].defeatedText;
-			}
-			else
-			{
-				//always show defend button in the beginning
-				enemyPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
-			}
 		}
 
 		//check if enemy has status effect or not, and change status effect image and counter text
@@ -1108,22 +1117,22 @@ public class GameManager : MonoBehaviour
 	public void ResetEnemyPageElements ()
 	{
 		enemyPageGameObject.transform.FindChild("Blocker").gameObject.SetActive(false);
-
+	
 		enemyPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(false);
-
+	
 		enemyPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(false);
 		enemyPageGameObject.transform.FindChild("ConfirmResetButtons").gameObject.SetActive(false);
-
+	
 		enemyPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + 0;
 		enemyPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + 0;
-
+	
 		for (int i = 0; i < enemyPageGameObject.transform.FindChild("CharacterIcons").gameObject.transform.childCount; i++)
 		{
 			enemyPageGameObject.transform.FindChild("CharacterIcons").gameObject.transform.GetChild(i).gameObject.SetActive(false);
 		}
-
+	
 		enemyPageGameObject.transform.FindChild("StatusEffect").gameObject.SetActive(false);
-
+	
 		//reset all selected abilities
 		for (int i = 0; i < enemyPageGameObject.transform.FindChild("Abilities").gameObject.transform.childCount; i++)
 		{
