@@ -149,6 +149,11 @@ public class GameManager : MonoBehaviour
 
 		if (Input.GetMouseButtonUp(0))
 		{
+			if (playerCurrentHP == 0)
+			{
+				return;
+			}
+
 			Vector3 tempMousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
 
 			//swipe left
@@ -253,6 +258,14 @@ public class GameManager : MonoBehaviour
 	public void EmptyVoid (bool isBool)
 	{
 
+	}
+
+	public IEnumerator PlayerLoseEvent ()
+	{
+		yield return new WaitForSeconds(3f);
+
+		//play fullscreen animation
+		StartCoroutine(PlayNormalFullScreenTransitionAnimation(ShowEnemyOpeningPage, false));
 	}
 
 	public void OnPortraitButtonClicked ()
@@ -800,12 +813,21 @@ public class GameManager : MonoBehaviour
 			//put current HP and total HP
 			playerPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + playerCurrentHP;
 			playerPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + playerTotalHP;
+
+			StartCoroutine(PlayerLoseEvent());
 		}
 
 		if (!isPeeking)
 		{
-			//always show defend button in the beginning
-			playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
+			if (playerCurrentHP == 0)
+			{
+
+			}
+			else
+			{
+				//always show defend button in the beginning
+				playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
+			}
 		}
 
 		//check if player has status effect or not, and change status effect image and counter text
@@ -855,7 +877,7 @@ public class GameManager : MonoBehaviour
 			}
 		}
 
-		if (isPeeking)
+		if (isPeeking || playerCurrentHP == 0)
 		{
 			//activate blocker
 			playerPageGameObject.transform.FindChild("Blocker").gameObject.SetActive(true);
@@ -1113,7 +1135,6 @@ public class GameManager : MonoBehaviour
 	}
 
 	#region LOGIC OF ABILITIES
-		
 	public void AbsorbEnemyAbilities ()
 	{
 		Debug.Log("Absorb Enemy Abilities!");
