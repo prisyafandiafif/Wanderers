@@ -6,6 +6,8 @@ public class IceAbility : MonoBehaviour
 	public int defaultDamage;
 	public int affinityInNumber;
 
+	public float affinityDamage;
+
 	private GameManager gameManagerInstance;	
 
 	// Use this for initialization
@@ -116,7 +118,7 @@ public class IceAbility : MonoBehaviour
 				}
 				else
 				{
-					gameManagerInstance.playerCurrentHP = gameManagerInstance.playerCurrentHP - (defaultDamage + Mathf.FloorToInt(defaultDamage * 0.2f));
+					gameManagerInstance.playerCurrentHP = gameManagerInstance.playerCurrentHP - (defaultDamage + Mathf.FloorToInt(defaultDamage * affinityDamage));
 				}
 			}
 			else
@@ -129,7 +131,7 @@ public class IceAbility : MonoBehaviour
 				}
 				else
 				{
-					gameManagerInstance.playerCurrentHP = gameManagerInstance.playerCurrentHP - (defaultDamage - Mathf.FloorToInt(defaultDamage * 0.2f));
+					gameManagerInstance.playerCurrentHP = gameManagerInstance.playerCurrentHP - (defaultDamage - Mathf.FloorToInt(defaultDamage * affinityDamage));
 				}
 			}
 			else
@@ -158,7 +160,7 @@ public class IceAbility : MonoBehaviour
 				}
 				else
 				{
-					gameManagerInstance.enemyCurrentHP = gameManagerInstance.enemyCurrentHP - (defaultDamage - Mathf.FloorToInt(defaultDamage * 0.2f));
+					gameManagerInstance.enemyCurrentHP = gameManagerInstance.enemyCurrentHP - (defaultDamage - Mathf.FloorToInt(defaultDamage * affinityDamage));
 				}
 			}
 			else
@@ -171,7 +173,7 @@ public class IceAbility : MonoBehaviour
 				}
 				else
 				{
-					gameManagerInstance.enemyCurrentHP = gameManagerInstance.enemyCurrentHP - (defaultDamage + Mathf.FloorToInt(defaultDamage * 0.2f));
+					gameManagerInstance.enemyCurrentHP = gameManagerInstance.enemyCurrentHP - (defaultDamage + Mathf.FloorToInt(defaultDamage * affinityDamage));
 				}
 			}
 			else

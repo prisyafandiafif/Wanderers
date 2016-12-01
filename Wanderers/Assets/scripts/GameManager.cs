@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 	public int playerTurnCount = 0;
 	public int enemyTurnCount = 0;
 
-	#region ABILITIES VARIABLES
+	#region ABILITIES CLASS
 	[System.Serializable]
 	public class Abilities
 	{
@@ -53,9 +53,50 @@ public class GameManager : MonoBehaviour
 	}
 	#endregion
 
+	#region ENEMIES CLASS
+	[System.Serializable]
+	public class Enemies
+	{
+		public string name;
+		public int id;
+		public string description;
+		public string defeatedText;
+		public Sprite sprite;
+		public int enemyCurrentHP;
+		public int enemyTotalHP;
+		public int enemyStatusEffect;
+		public bool isEnemyDefend;
+		public string enemyDefaultAffinity;
+		public int enemyStatusValidCounter;
+		public List<int> listOfAbilities;
+
+		public Enemies Clone ()
+		{
+			Enemies copy = new Enemies();
+			
+			copy.id = this.id;
+			copy.name = this.name;
+			copy.description = this.description;
+			copy.defeatedText = this.defeatedText;
+			copy.sprite = this.sprite;
+			copy.enemyCurrentHP = this.enemyCurrentHP;
+			copy.enemyTotalHP = this.enemyTotalHP;
+			copy.enemyStatusEffect = this.enemyStatusEffect;
+			copy.isEnemyDefend = this.isEnemyDefend;
+			copy.enemyDefaultAffinity = this.enemyDefaultAffinity;
+			copy.enemyStatusValidCounter = this.enemyStatusValidCounter;
+			copy.listOfAbilities = this.listOfAbilities;
+
+			return copy;
+		}
+	}
+	#endregion
+
 	public List<Abilities> abilities;
+	public List<Enemies> enemies;
 
 	public int rubiksSide;
+	public int selectedEnemyID;
 
 	#region RESOURCE TYPE VARIABLES
 	public Sprite meteorIcon;
@@ -89,12 +130,12 @@ public class GameManager : MonoBehaviour
 	// Use this for initialization
 	void Awake ()
 	{
-		
+		//PlayerPrefs.DeleteAll();
 	}
 
 	void Start () 
 	{
-		ShowEnemyOpeningPage();
+		ShowEnemyOpeningPage(false);
 	}
 	
 	// Update is called once per frame
@@ -216,28 +257,61 @@ public class GameManager : MonoBehaviour
 
 	public void OnPortraitButtonClicked ()
 	{
-		//TODO set player and enemy
 		Abilities copy = new Abilities();
-		copy = abilities[4].Clone();
-		playerListOfAbilities.Add(copy);
-		copy = abilities[3].Clone();
-		playerListOfAbilities.Add(copy);
-		copy = abilities[2].Clone();
-		playerListOfAbilities.Add(copy);
-		copy = abilities[0].Clone();
-		playerListOfAbilities.Add(copy);
-		copy = abilities[1].Clone();
-		playerListOfAbilities.Add(copy);
-		copy = abilities[4].Clone();
-		enemyListOfAbilities.Add(copy);
-		copy = abilities[8].Clone();
-		enemyListOfAbilities.Add(copy);
-		copy = abilities[7].Clone();
-		enemyListOfAbilities.Add(copy);
-		copy = abilities[6].Clone();
-		enemyListOfAbilities.Add(copy);
-		copy = abilities[5].Clone();
-		enemyListOfAbilities.Add(copy);
+
+		playerListOfAbilities.Clear();
+		enemyListOfAbilities.Clear();
+
+		//set player's ability
+		if (PlayerPrefs.HasKey("Player Ability 1") && 
+			PlayerPrefs.HasKey("Player Ability 2") && 
+			PlayerPrefs.HasKey("Player Ability 3") && 
+			PlayerPrefs.HasKey("Player Ability 4") && 
+			PlayerPrefs.HasKey("Player Ability 5"))
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				int id = PlayerPrefs.GetInt("Player Ability " + (i+1));
+	
+				copy = abilities[id].Clone();
+				playerListOfAbilities.Add(copy);
+			}
+		}
+		else
+		{
+			copy = abilities[4].Clone();
+			playerListOfAbilities.Add(copy);
+			copy = abilities[3].Clone();
+			playerListOfAbilities.Add(copy);
+			copy = abilities[2].Clone();
+			playerListOfAbilities.Add(copy);
+			copy = abilities[0].Clone();
+			playerListOfAbilities.Add(copy);
+			copy = abilities[1].Clone();
+			playerListOfAbilities.Add(copy);
+		}
+
+		//set enemy's abilities
+		for (int i = 0; i < 5; i++)
+		{
+			copy = abilities[enemies[selectedEnemyID].listOfAbilities[i]].Clone();
+			enemyListOfAbilities.Add(copy);
+		}
+
+		//reset enemy HP and other status
+		enemyTotalHP = enemies[selectedEnemyID].enemyTotalHP;
+		enemyCurrentHP = enemies[selectedEnemyID].enemyCurrentHP;
+		isEnemyDefend = enemies[selectedEnemyID].isEnemyDefend;
+		enemyStatusValidCounter = enemies[selectedEnemyID].enemyStatusValidCounter;
+		enemyStatusEffect = enemies[selectedEnemyID].enemyStatusEffect;
+		enemyDefaultAffinity = enemies[selectedEnemyID].enemyDefaultAffinity;
+
+		//reset player HP and other status
+		playerCurrentHP = playerTotalHP;
+		isPlayerDefend = false;
+		playerStatusValidCounter = 0;
+		playerStatusEffect = -1;
+		playerDefaultAffinity = "normal";		
 
 		//play fullscreen animation
 		StartCoroutine(PlayNormalFullScreenTransitionAnimation(ShowPlayerPage, false));
@@ -608,6 +682,27 @@ public class GameManager : MonoBehaviour
 		isPlayerDefend = false;
 	}
 
+	public void OnOkayButtonClicked (GameObject page)
+	{
+		//if in enemy's page
+		if (page == enemyPageGameObject)
+		{
+			//absorb enemy's abilities
+			AbsorbEnemyAbilities();
+
+			//play fullscreen animation
+			StartCoroutine(PlayNormalFullScreenTransitionAnimation(ShowEnemyOpeningPage, false));
+		}
+		else
+		{
+			//do not absorb enemy's abilities
+			Debug.Log("Do not absorb Enemy Abilities!");
+			
+			//play fullscreen animation
+			StartCoroutine(PlayNormalFullScreenTransitionAnimation(ShowEnemyOpeningPage, false));
+		}
+	}
+
 	public void OnDefendButtonClicked (GameObject page)
 	{
 		//if enemy's turn
@@ -647,15 +742,24 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	public void ShowEnemyOpeningPage ()
+	public void ShowEnemyOpeningPage (bool isWhat)
 	{
 		enemyOpeningPageGameObject.SetActive(true);
+		playerPageGameObject.SetActive(false);
+		enemyPageGameObject.SetActive(false);
 
 		//random which Rubiks' side that player needs to use
 		rubiksSide = UnityEngine.Random.Range(1, 7);
 
 		//show Rubiks's side on the screen
 		rubiksSideGameObject.transform.GetChild(rubiksSide-1).gameObject.SetActive(true);
+
+		//show which enemy that will be shown randomly
+		int randomEnemyID = UnityEngine.Random.Range(0, enemies.Count);
+		selectedEnemyID = randomEnemyID;
+
+		//put the selected enemy sprite on the screen
+		enemyOpeningPageGameObject.transform.FindChild("PortraitButton").gameObject.GetComponent<Image>().sprite = enemies[selectedEnemyID].sprite;
 	}
 
 	public void ShowPlayerPage (bool isPeeking)
@@ -683,15 +787,26 @@ public class GameManager : MonoBehaviour
 		//reset player page
 		ResetPlayerPageElements();
 
+		if (playerCurrentHP > 0)
+		{
+			//put current HP and total HP
+			playerPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + playerCurrentHP;
+			playerPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + playerTotalHP;
+		}
+		else
+		{
+			playerCurrentHP = 0;
+
+			//put current HP and total HP
+			playerPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + playerCurrentHP;
+			playerPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + playerTotalHP;
+		}
+
 		if (!isPeeking)
 		{
 			//always show defend button in the beginning
 			playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
 		}
-
-		//put current HP and total HP
-		playerPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + playerCurrentHP;
-		playerPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + playerTotalHP;
 
 		//check if player has status effect or not, and change status effect image and counter text
 		if (playerStatusEffect == -1)
@@ -744,6 +859,12 @@ public class GameManager : MonoBehaviour
 		{
 			//activate blocker
 			playerPageGameObject.transform.FindChild("Blocker").gameObject.SetActive(true);
+
+			if (enemyCurrentHP == 0)
+			{
+				//show okay button
+				playerPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(true);
+			}
 		}
 
 		//show player abilities on the screen
@@ -769,6 +890,16 @@ public class GameManager : MonoBehaviour
 			if (playerListOfAbilities[i].resourceType == "moon")
 			{
 				playerPageGameObject.transform.FindChild("Abilities").gameObject.transform.GetChild(i).gameObject.transform.FindChild("Icon").gameObject.GetComponent<Image>().sprite = moonIcon;
+			}
+
+			//disabled the button if resource count is equal to zero
+			if (playerListOfAbilities[i].resourceCount == 0 || playerCurrentHP == 0)
+			{
+				playerPageGameObject.transform.FindChild("Abilities").gameObject.transform.GetChild(i).gameObject.transform.FindChild("Button").gameObject.GetComponent<Button>().enabled = false;
+			}
+			else
+			{
+				playerPageGameObject.transform.FindChild("Abilities").gameObject.transform.GetChild(i).gameObject.transform.FindChild("Button").gameObject.GetComponent<Button>().enabled = true;
 			}
 		}
 
@@ -802,15 +933,34 @@ public class GameManager : MonoBehaviour
 		//reset enemy page
 		ResetEnemyPageElements();
 
-		if (!isPeeking)
+		if (enemyCurrentHP > 0)
 		{
-			//always show defend button in the beginning
-			enemyPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
+			//put current HP and total HP
+			enemyPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + enemyCurrentHP;
+			enemyPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + enemyTotalHP;
+		}
+		else
+		{
+			enemyCurrentHP = 0;
+			
+			//put current HP and total HP
+			enemyPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + enemyCurrentHP;
+			enemyPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + enemyTotalHP;
 		}
 
-		//put current HP and total HP
-		enemyPageGameObject.transform.FindChild("CurrentHPText").gameObject.GetComponent<Text>().text = "" + enemyCurrentHP;
-		enemyPageGameObject.transform.FindChild("TotalHPText").gameObject.GetComponent<Text>().text = "" + enemyTotalHP;
+		if (!isPeeking)
+		{
+			if (enemyCurrentHP == 0)
+			{
+				//show okay button
+				enemyPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(true);
+			}
+			else
+			{
+				//always show defend button in the beginning
+				enemyPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(true);
+			}
+		}
 
 		//check if enemy has status effect or not, and change status effect image and counter text
 		if (enemyStatusEffect == -1)
@@ -887,12 +1037,24 @@ public class GameManager : MonoBehaviour
 			{
 				enemyPageGameObject.transform.FindChild("Abilities").gameObject.transform.GetChild(i).gameObject.transform.FindChild("Icon").gameObject.GetComponent<Image>().sprite = moonIcon;
 			}
+
+			//disabled the button if resource count is equal to zero
+			if (enemyListOfAbilities[i].resourceCount == 0 || enemyCurrentHP == 0)
+			{
+				enemyPageGameObject.transform.FindChild("Abilities").gameObject.transform.GetChild(i).gameObject.transform.FindChild("Button").gameObject.GetComponent<Button>().enabled = false;
+			}
+			else
+			{
+				enemyPageGameObject.transform.FindChild("Abilities").gameObject.transform.GetChild(i).gameObject.transform.FindChild("Button").gameObject.GetComponent<Button>().enabled = true;
+			}
 		}
 	}
 
 	public void ResetPlayerPageElements ()
 	{
 		playerPageGameObject.transform.FindChild("Blocker").gameObject.SetActive(false);
+
+		playerPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(false);
 
 		playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(false);
 		playerPageGameObject.transform.FindChild("ConfirmResetButtons").gameObject.SetActive(false);
@@ -921,6 +1083,8 @@ public class GameManager : MonoBehaviour
 	{
 		enemyPageGameObject.transform.FindChild("Blocker").gameObject.SetActive(false);
 
+		enemyPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(false);
+
 		enemyPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(false);
 		enemyPageGameObject.transform.FindChild("ConfirmResetButtons").gameObject.SetActive(false);
 
@@ -945,15 +1109,27 @@ public class GameManager : MonoBehaviour
 	}
 
 	#region LOGIC OF ABILITIES
+		
+	public void AbsorbEnemyAbilities ()
+	{
+		Debug.Log("Absorb Enemy Abilities!");
+
+		//save to player prefs
+		for (int i = 0; i < enemyListOfAbilities.Count; i++)
+		{
+			PlayerPrefs.SetInt("Player Ability " + (i+1), enemyListOfAbilities[i].id);
+		}
+	}
+
 	public void ResetChosenAbilities (int abilityID, bool isPlayer)
 	{
-		//if Bid
+		//if Bid (DEBUFF)
 		if (abilityID == 0)
 		{
 			this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<BidAbility>().Reset(isPlayer);
 		}
 		else
-		//if Grant
+		//if Grant (BUFF)
 		if (abilityID == 1)
 		{
 			this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<GrantAbility>().Reset(isPlayer);
@@ -971,22 +1147,22 @@ public class GameManager : MonoBehaviour
 			this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<IceAbility>().Reset(isPlayer);
 		}
 		else
-		//if Offer (ATT)
+		//if Flame (ATT)
 		if (abilityID == 4)
 		{
-			//this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<FlameAbility>().Execute(page);
+			this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<FlameAbility>().Reset(isPlayer);
 		}
 		else
-		//if Block Meteor (ATT)
+		//if Offer (BUFF)
 		if (abilityID == 5)
 		{
-			//this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<FlameAbility>().Execute(page);
+			this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<OfferAbility>().Reset(isPlayer);
 		}
 		else
-		//if Flame (ATT)
+		//if Block Meteor (DEBUFF)
 		if (abilityID == 6)
 		{
-			this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<FlameAbility>().Reset(isPlayer);
+			this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<BlockMeteorAbility>().Reset(isPlayer);
 		}
 		else
 		//if Jolt (ATT)
@@ -1008,13 +1184,13 @@ public class GameManager : MonoBehaviour
 		{
 			Debug.Log("List of Chosen Abilities ID: " + listOfChosenAbilities[i]);
 
-			//if Bid
+			//if Bid (DEBUFF)
 			if (listOfChosenAbilities[i].name == "Bid")
 			{
 				this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<BidAbility>().Execute(page);
 			}
 			else
-			//if Grant
+			//if Grant (BUFF)
 			if (listOfChosenAbilities[i].name == "Grant")
 			{
 				this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<GrantAbility>().Execute(page);
@@ -1032,22 +1208,22 @@ public class GameManager : MonoBehaviour
 				this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<IceAbility>().Execute(page);
 			}
 			else
-			//if Offer (ATT)
-			if (listOfChosenAbilities[i].name == "Offer")
-			{
-				this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<FlameAbility>().Execute(page);
-			}
-			else
-			//if Block Meteor (ATT)
-			if (listOfChosenAbilities[i].name == "Block Meteor")
-			{
-				this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<FlameAbility>().Execute(page);
-			}
-			else
 			//if Flame (ATT)
 			if (listOfChosenAbilities[i].name == "Flame")
 			{
 				this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<FlameAbility>().Execute(page);
+			}
+			else
+			//if Offer (BUFF)
+			if (listOfChosenAbilities[i].name == "Offer")
+			{
+				this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<OfferAbility>().Execute(page);
+			}
+			else
+			//if Block Meteor (DEBUFF)
+			if (listOfChosenAbilities[i].name == "Block Meteor")
+			{
+				this.gameObject.transform.FindChild("AbilityManager").gameObject.GetComponent<BlockMeteorAbility>().Execute(page);
 			}
 			else
 			//if Jolt (ATT)

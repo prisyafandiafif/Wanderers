@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BidAbility : MonoBehaviour 
+public class BlockMeteorAbility : MonoBehaviour 
 {
 	public int abilityID;
 
@@ -26,7 +26,7 @@ public class BidAbility : MonoBehaviour
 
 	public void Reset (bool isPlayer)
 	{
-		Debug.Log("Reset Bid DEBUFF!");
+		Debug.Log("Reset Block Meteor DEBUFF!");
 
 		if (isPlayer)
 		{
@@ -52,7 +52,7 @@ public class BidAbility : MonoBehaviour
 
 	public void Execute (GameObject page)
 	{
-		Debug.Log("Execute Bid DEBUFF!");
+		Debug.Log("Execute Block Meteor DEBUFF!");
 
 		//if this is player's turn
 		if (page == gameManagerInstance.playerPageGameObject)
@@ -67,7 +67,7 @@ public class BidAbility : MonoBehaviour
 					{
 						if (changeValue == -100)
 						{
-							gameManagerInstance.playerListOfAbilities[i].resourceCount += changeValue; 
+							gameManagerInstance.playerListOfAbilities[i].resourceCount = 0; 
 						}
 						else
 						if (gameManagerInstance.enemyListOfAbilities[i].resourceCount + changeValue >= 5 || gameManagerInstance.enemyListOfAbilities[i].resourceCount + changeValue <= 0)
@@ -119,7 +119,7 @@ public class BidAbility : MonoBehaviour
 					{
 						if (changeValue == -100)
 						{
-							gameManagerInstance.playerListOfAbilities[i].resourceCount += changeValue; 
+							gameManagerInstance.playerListOfAbilities[i].resourceCount = 0; 
 						}
 						else
 						if (gameManagerInstance.playerListOfAbilities[i].resourceCount + changeValue >= 5 || gameManagerInstance.playerListOfAbilities[i].resourceCount + changeValue <= 0)
