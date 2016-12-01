@@ -954,6 +954,10 @@ public class GameManager : MonoBehaviour
 			{
 				//show okay button
 				enemyPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(true);
+
+				//show defeated text
+				enemyPageGameObject.transform.FindChild("Dialogue").gameObject.SetActive(true);
+				enemyPageGameObject.transform.FindChild("Dialogue").gameObject.transform.FindChild("Text").gameObject.GetComponent<Text>().text = enemies[selectedEnemyID].defeatedText;
 			}
 			else
 			{
