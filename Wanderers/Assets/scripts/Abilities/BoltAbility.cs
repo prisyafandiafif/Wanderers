@@ -156,7 +156,7 @@ public class BoltAbility : MonoBehaviour
 			{
 				if (gameManagerInstance.isEnemyDefend)
 				{
-					gameManagerInstance.enemyCurrentHP = gameManagerInstance.enemyCurrentHP - (Mathf.FloorToInt(defaultDamage * 0.5f) - Mathf.FloorToInt(defaultDamage * 0.2f));
+					gameManagerInstance.enemyCurrentHP = gameManagerInstance.enemyCurrentHP;
 				}
 				else
 				{
@@ -182,7 +182,7 @@ public class BoltAbility : MonoBehaviour
 			{
 				if (gameManagerInstance.isEnemyDefend)
 				{
-					gameManagerInstance.enemyCurrentHP = gameManagerInstance.enemyCurrentHP - Mathf.FloorToInt(defaultDamage * 0.5f);
+					gameManagerInstance.enemyCurrentHP = gameManagerInstance.enemyCurrentHP;
 				}
 				else
 				{
