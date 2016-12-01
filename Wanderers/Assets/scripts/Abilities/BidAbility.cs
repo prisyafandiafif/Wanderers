@@ -81,14 +81,14 @@ public class BidAbility : MonoBehaviour
 				{
 					gameManagerInstance.enemyStatusEffect = abilityID;
 
-					if (gameManagerInstance.playerTurnCount == 1)
+					/*if (gameManagerInstance.playerTurnCount == 1)
 					{
 						gameManagerInstance.enemyStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime;
 					}
 					else
-					{
-						gameManagerInstance.enemyStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime + 1;
-					}
+					{*/
+					gameManagerInstance.enemyStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime;
+					//}
 				}
 				else
 				{
@@ -128,14 +128,14 @@ public class BidAbility : MonoBehaviour
 				{
 					gameManagerInstance.playerStatusEffect = abilityID;
 
-					if (gameManagerInstance.enemyTurnCount == 1)
+					/*if (gameManagerInstance.enemyTurnCount == 1)
 					{
 						gameManagerInstance.playerStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime;
 					}
 					else
-					{
-						gameManagerInstance.playerStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime + 1;
-					}
+					{*/
+					gameManagerInstance.playerStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime;
+					//}
 				}
 				else
 				{

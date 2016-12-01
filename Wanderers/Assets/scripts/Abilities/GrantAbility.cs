@@ -81,7 +81,7 @@ public class GrantAbility : MonoBehaviour
 				{
 					gameManagerInstance.enemyStatusEffect = abilityID;
 
-					gameManagerInstance.enemyStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime + 1;
+					gameManagerInstance.enemyStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime;
 				}
 				else
 				{
@@ -121,7 +121,7 @@ public class GrantAbility : MonoBehaviour
 				{
 					gameManagerInstance.playerStatusEffect = abilityID;
 
-					gameManagerInstance.playerStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime + 1;
+					gameManagerInstance.playerStatusValidCounter = gameManagerInstance.abilities[abilityID].validTime;
 				}
 				else
 				{
