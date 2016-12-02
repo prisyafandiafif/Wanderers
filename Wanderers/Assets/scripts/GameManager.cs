@@ -141,6 +141,12 @@ public class GameManager : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
+		//CHEAT
+		if (Input.GetKeyDown (KeyCode.P)) 
+		{
+			PlayerPrefs.DeleteAll ();
+		}
+
 		//check swipe
 		if (Input.GetMouseButtonDown(0))
 		{
@@ -785,7 +791,7 @@ public class GameManager : MonoBehaviour
 
 		if (!isPeeking)
 		{
-			if (playerCurrentHP == 0)
+			if (playerCurrentHP < 0)
 			{
 
 			}
@@ -943,7 +949,7 @@ public class GameManager : MonoBehaviour
 
 		if (!isPeeking)
 		{
-			if (enemyCurrentHP == 0)
+			if (enemyCurrentHP < 0)
 			{
 				//show okay button
 				enemyPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(true);
@@ -1091,6 +1097,8 @@ public class GameManager : MonoBehaviour
 
 		playerPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(false);
 
+		playerPageGameObject.transform.FindChild ("Dialogue").gameObject.SetActive (false);
+
 		playerPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(false);
 		playerPageGameObject.transform.FindChild("ConfirmResetButtons").gameObject.SetActive(false);
 
@@ -1120,6 +1128,8 @@ public class GameManager : MonoBehaviour
 	
 		enemyPageGameObject.transform.FindChild("OkayButton").gameObject.SetActive(false);
 	
+		enemyPageGameObject.transform.FindChild ("Dialogue").gameObject.SetActive (false);
+
 		enemyPageGameObject.transform.FindChild("DefendButton").gameObject.SetActive(false);
 		enemyPageGameObject.transform.FindChild("ConfirmResetButtons").gameObject.SetActive(false);
 	
